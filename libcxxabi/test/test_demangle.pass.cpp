@@ -7,7 +7,7 @@
 //===----------------------------------------------------------------------===//
 
 // This test is too big for most embedded devices.
-// XFAIL: LIBCXX-PICOLIBC-FIXME
+// REQUIRES: large_tests
 
 // https://llvm.org/PR51407 was not fixed in some previously-released
 // demanglers, which causes them to run into the infinite loop.
