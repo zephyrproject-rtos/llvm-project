@@ -7,7 +7,7 @@
 # ===----------------------------------------------------------------------===##
 
 from libcxx.test.dsl import compilerMacros, sourceBuilds, hasCompileFlag, programSucceeds, runScriptExitCode
-from libcxx.test.dsl import Feature, AddCompileFlag, AddLinkFlag
+from libcxx.test.dsl import Feature, AddCompileFlag, AddFeature, AddLinkFlag
 import platform
 import sys
 
@@ -114,6 +114,24 @@ features = [
             int main(int, char**) { (void)x.load(); (void)x.is_lock_free(); return 0; }
           """,
         ),
+    ),
+    # Targets without any atomics support at all, such as single-core
+    # baremetal targets built against picolibc. Anything that pulls in
+    # <atomic> has to be skipped there.
+    Feature(
+        name="has-no-atomics",
+        when=lambda cfg: not sourceBuilds(
+            cfg,
+            """
+            #include <atomic>
+            std::atomic_uint x;
+            int main(int, char**) { (void)x.load(); return 0; }
+          """,
+        ),
+        actions=[
+            AddFeature("availability-pmr-missing"),
+            AddFeature("libcpp-has-no-incomplete-pstl"),
+        ],
     ),
     # Tests that require 64-bit architecture
     Feature(
